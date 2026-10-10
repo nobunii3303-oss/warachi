@@ -1,0 +1,363 @@
+<title>ワラーチ製作依頼</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column, a step-by-step form like a Google Form, with a live sandal preview pinned beside the steps */
+:root{
+  --bg:#f3f2ec; --surface:#fffefa; --ink:#2b2a24; --muted:#6d6a5e; --line:#dcd8cb;
+  --accent:#2f5d46; --accent-ink:#ffffff; --accent-soft:#e2ebe4; --warn:#b3361f;
+  --display:"Dela Gothic One","Hiragino Kaku Gothic StdN",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1b1c19; --surface:#252622; --ink:#ecebe4; --muted:#a6a395; --line:#3a3b35;
+  --accent:#8fc4a4; --accent-ink:#13241a; --accent-soft:#2a3a30; --warn:#f08a72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1b1c19; --surface:#252622; --ink:#ecebe4; --muted:#a6a395; --line:#3a3b35;
+  --accent:#8fc4a4; --accent-ink:#13241a; --accent-soft:#2a3a30; --warn:#f08a72; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:24px 64px}
+.wrap{max-width:960px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start}
+@media (max-width:760px){.wrap{grid-template-columns:minmax(0,1fr)}}
+header.top{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.2;margin:0;text-wrap:balance}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0;line-height:1.3}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+main{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* progress */
+.steps{display:flex;gap:6px;list-style:none;padding:0;margin:0;flex-wrap:wrap}
+.steps li{flex:1 1 0;min-width:52px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.steps li::before{content:"";height:4px;border-radius:2px;background:var(--line)}
+.steps li.done::before,.steps li.now::before{background:var(--accent)}
+.steps li.now{color:var(--ink);font-weight:700}
+
+.qhead{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.qhead p{margin:0;color:var(--muted);font-size:14px}
+.req{color:var(--warn);font-size:12px;margin-left:6px;font-family:var(--body)}
+
+/* choice grids */
+.choices{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}
+.choices.cords{grid-template-columns:repeat(auto-fill,minmax(86px,1fr))}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.opt label{display:flex;flex-direction:column;gap:6px;border:2px solid var(--line);border-radius:8px;padding:6px 6px 8px;cursor:pointer;background:var(--surface);transition:border-color .15s}
+.opt img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;display:block;background:#fff}
+.cords .opt img{aspect-ratio:4/5}
+.cords .opt .nm{font-size:12px;flex-wrap:wrap;gap:4px}
+.opt .nm{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500}
+.opt .no{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+.chip{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.2);flex:none}
+.opt input:checked + label{border-color:var(--accent);background:var(--accent-soft)}
+.opt input:focus-visible + label{outline:3px solid var(--accent);outline-offset:2px}
+.opt input:checked + label::after{content:"✓";position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:14px;font-weight:700}
+
+/* fields */
+.fields{display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:14px}
+.field .hint{font-size:12px;color:var(--muted)}
+.field input,.field textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%}
+.field input:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.field.err input,.field.err textarea{border-color:var(--warn)}
+.errmsg{color:var(--warn);font-size:13px}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:12px}
+@media (max-width:480px){.row2{grid-template-columns:minmax(0,1fr)}}
+
+/* upload */
+.drop{border:2px dashed var(--line);border-radius:10px;padding:24px 16px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;cursor:pointer;position:relative}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.thumbs img{width:96px;height:96px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.howto{margin:0 0 14px;padding-left:1.3em;color:var(--muted);font-size:14px}
+
+/* nav */
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+button{font:inherit;font-weight:700;border-radius:999px;padding:10px 22px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button[disabled]{opacity:.45;cursor:not-allowed}
+
+/* summary */
+dl.sum{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:8px 14px;margin:0}
+dl.sum dt{color:var(--muted);font-size:13px}
+dl.sum dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.price{display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums;border-top:1px solid var(--line);padding-top:12px;margin-top:14px}
+.price div{display:flex;justify-content:space-between}
+.price .total{font-weight:700;font-size:17px}
+
+/* side preview */
+aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;flex-direction:column;gap:12px}
+@media (max-width:760px){aside{position:static;order:-1}}
+.pv{display:flex;gap:14px;align-items:center}
+@media (min-width:761px){.pv{flex-direction:column;align-items:stretch}}
+.pv svg{width:110px;flex:none;height:auto}
+@media (min-width:761px){.pv svg{width:150px;margin:0 auto}}
+.pv dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:13px}
+.pv dt{color:var(--muted)}
+.pv dd{margin:0}
+.flow{margin:0;padding-left:1.4em;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.flow b{color:var(--ink);font-weight:500}
+.small{font-size:12px;color:var(--muted);margin:0}
+
+.done{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">HANDMADE HUARACHE · 手作りワラーチ</span>
+    <h1>ワラーチ製作依頼</h1>
+    <p class="lead">ソールと紐の色を選び、足形の写真を送るだけ。あなたの足に合わせて一足ずつ手作りします。本体 6,000円＋送料 430円。</p>
+  </header>
+
+  <main>
+    <ol class="steps" id="steps" aria-label="入力の進み具合">
+      <li>ソール</li><li>紐</li><li>足形</li><li>お客様情報</li><li>確認</li>
+    </ol>
+
+    <form id="f" class="card" novalidate method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_subject" value="【ワラーチ製作依頼】新しいご注文">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_next" id="hNext">
+      <input type="hidden" name="ソール" id="hSole">
+      <input type="hidden" name="紐" id="hCord">
+      <input type="file" name="足形写真1" id="hFoot1" hidden>
+      <input type="file" name="足形写真2" id="hFoot2" hidden>
+      <!-- 1 sole -->
+      <section data-step="0">
+        <div class="qhead"><h2>ソールの色<span class="req">必須</span></h2><p>足裏に敷くソールを選んでください。模様はどれも同じです。</p></div>
+        <div class="choices" id="soles"></div>
+      </section>
+
+      <!-- 2 cord -->
+      <section data-step="1" hidden>
+        <div class="qhead"><h2>紐の色<span class="req">必須</span></h2><p>足に巻く紐（パラコード）の色を選んでください。</p></div>
+        <div class="choices cords" id="cords"></div>
+      </section>
+
+      <!-- 3 foot -->
+      <section data-step="2" hidden>
+        <div class="qhead"><h2>足形の写真<span class="req">必須</span></h2><p>紙の上に立ち、足の輪郭をなぞった写真を添付してください。</p></div>
+        <ol class="howto">
+          <li>A4の紙を床に置き、体重をかけて立ちます。</li>
+          <li>ペンを垂直に立てて、足のまわりをなぞります。親指と人差し指の間にも印をつけてください。</li>
+          <li>左右それぞれ、真上から紙全体が写るように撮影します。</li>
+        </ol>
+        <p class="small" style="margin-bottom:14px">撮り方の動画：<span id="videoLink">（動画のURLをここに入れます）</span></p>
+        <div class="drop" id="drop">
+          <input type="file" id="foot" accept="image/*" multiple aria-label="足形の写真を選ぶ">
+          <strong>写真を選ぶ</strong>
+          <span class="small">タップして選択、またはここにドラッグ（左右2枚まで）</span>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+      </section>
+
+      <!-- 4 info -->
+      <section data-step="3" hidden>
+        <div class="qhead"><h2>お客様情報</h2><p>完成のご連絡と発送に使います。</p></div>
+        <div class="fields">
+          <div class="field"><label for="name">お名前<span class="req">必須</span></label><input id="name" name="お名前" autocomplete="name" placeholder="山田 太郎" required></div>
+          <div class="row2">
+            <div class="field"><label for="zip">郵便番号<span class="req">必須</span></label><input id="zip" name="郵便番号" inputmode="numeric" autocomplete="postal-code" placeholder="123-4567" required></div>
+            <div class="field"><label for="addr">住所<span class="req">必須</span></label><input id="addr" name="住所" autocomplete="street-address" placeholder="都道府県・市区町村・番地・建物名" required></div>
+          </div>
+          <div class="field"><label for="tel">電話番号<span class="req">必須</span></label><input id="tel" name="電話番号" type="tel" autocomplete="tel" placeholder="090-1234-5678" required></div>
+          <div class="field"><label for="mail">メールアドレス<span class="req">必須</span></label><input id="mail" name="email" type="email" autocomplete="email" placeholder="example@mail.com" required></div>
+          <div class="field"><label for="line">LINE ID</label><span class="hint">お支払い用のPayPayリンクをLINEでお送りします。</span><input id="line" name="LINE ID" placeholder="LINE ID"></div>
+          <div class="field"><label for="note">ご要望</label><textarea id="note" name="ご要望" rows="3" placeholder="サイズや履き方の希望などがあればどうぞ"></textarea></div>
+        </div>
+      </section>
+
+      <!-- 5 confirm -->
+      <section data-step="4" hidden>
+        <div class="qhead"><h2>内容の確認</h2><p>この内容で依頼します。修正は「戻る」から。</p></div>
+        <dl class="sum" id="sum"></dl>
+        <div class="price"><div><span>ワラーチ本体</span><span>6,000円</span></div><div><span>送料（レターパックライト）</span><span>430円</span></div><div class="total"><span>合計</span><span>6,430円</span></div></div>
+        <p class="small" style="margin-top:10px">お支払いは完成後、PayPayでお願いします。</p>
+      </section>
+
+      <section data-step="5" hidden class="done">
+        <h2>ご依頼を受け付けました</h2>
+        <p style="margin:0;max-width:40ch">材料をそろえ、納入予定日をメールとLINEでお知らせします。しばらくお待ちください。</p>
+        <p class="small" id="demoNote">※プレビューのため、実際には送信されていません。</p>
+        <button type="button" id="again">もう一足注文する</button>
+      </section>
+
+      <p class="errmsg" id="err" role="alert" hidden></p>
+      <div class="nav" id="nav">
+        <button type="button" id="back">戻る</button>
+        <button type="submit" class="primary" id="next">次へ</button>
+      </div>
+    </form>
+  </main>
+
+  <aside>
+    <div class="card pv">
+      <svg viewBox="0 0 120 240" role="img" aria-label="選んだ色のプレビュー">
+        <path id="pvSole" d="M60 8c26 0 40 22 40 52 0 26-6 40-8 62-2 24 6 44 4 70-2 26-16 40-36 40s-34-14-36-40c-2-26 6-46 4-70-2-22-8-36-8-62C20 30 34 8 60 8z" fill="#d9d6cc" stroke="var(--line)" stroke-width="2"/>
+        <g id="pvCord" fill="none" stroke="#9a978c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M48 46 L30 110"/><path d="M48 46 L90 112"/><path d="M30 110 Q60 96 90 112"/><path d="M30 110 L36 190 Q60 200 84 190 L90 112"/>
+        </g>
+        <circle cx="48" cy="46" r="5" id="pvKnot" fill="#9a978c"/>
+      </svg>
+      <dl>
+        <dt>ソール</dt><dd id="pvS">未選択</dd>
+        <dt>紐</dt><dd id="pvC">未選択</dd>
+        <dt>合計</dt><dd style="font-variant-numeric:tabular-nums">6,430円（送料込）</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <h2 style="font-size:16px;margin-bottom:8px">製作の流れ</h2>
+      <ol class="flow">
+        <li><b>このフォームで依頼</b></li>
+        <li>材料を購入し、納入予定日をメール・LINEでお知らせ</li>
+        <li>完成写真をメール・LINEでお送り</li>
+        <li><b>PayPayでお支払い</b>（LINEに送金リンク）</li>
+        <li>入金確認後、レターパックライトで発送</li>
+      </ol>
+    </div>
+  </aside>
+</div>
+
+<script>
+// ▼ 注文を受け取るメールアドレス（FormSubmitの英数字IDでも可）。空のままだと送信せず完了画面だけ表示します
+const ORDER_EMAIL="nobunii3303@gmail.com";
+
+// ▼ 材料の一覧。名前・色・写真をここで編集できます
+const SOLES=[
+  {no:1,name:"オレンジ",color:"#e8885c"},
+  {no:2,name:"ライトグレー",color:"#c9ccce"},
+  {no:3,name:"ベージュ",color:"#c9a46c"},
+  {no:4,name:"タバコ",color:"#5b4b45"},
+  {no:5,name:"ブラック",color:"#3a3b3d"},
+  {no:6,name:"スカイブルー",color:"#79a7d6"},
+];
+const CORDS=[
+  {no:1,name:"グリーン",color:"#2f8a4e"},
+  {no:2,name:"ライトグリーン",color:"#8be03a"},
+  {no:3,name:"スカイブルー",color:"#2a9bb0"},
+  {no:4,name:"ライトピンク",color:"#f1b8c4"},
+  {no:5,name:"オレンジ",color:"#f28a1e"},
+  {no:6,name:"ブラック",color:"#1e1e1e"},
+  {no:7,name:"ブルー",color:"#1d3fbf"},
+  {no:8,name:"パープル",color:"#7a3fb8"},
+  {no:9,name:"レッド",color:"#e0261d"},
+  {no:10,name:"イエロー",color:"#f6d21b"},
+  {no:11,name:"ホワイト",color:"#f4f4f4"},
+  {no:12,name:"ピンク",color:"#e0458a"},
+];
+
+const $=s=>document.querySelector(s);
+function buildChoices(el,list,group,img){
+  el.innerHTML=list.map(o=>`<div class="opt"><input type="radio" form="noSubmit" name="${group}" id="${group}${o.no}" value="${o.no}">
+    <label for="${group}${o.no}"><img src="img/${img}${o.no}.jpg" alt="${o.name}" loading="lazy">
+    <span class="nm"><span class="chip" style="background:${o.color}"></span>${o.name}<span class="no">#${o.no}</span></span></label></div>`).join("");
+}
+buildChoices($("#soles"),SOLES,"sole","sole");
+buildChoices($("#cords"),CORDS,"cord","cord");
+
+const sel=()=>({
+  sole:SOLES.find(o=>o.no==(document.querySelector('input[name=sole]:checked')||{}).value),
+  cord:CORDS.find(o=>o.no==(document.querySelector('input[name=cord]:checked')||{}).value)
+});
+function paint(){
+  const {sole,cord}=sel();
+  if(sole){$("#pvSole").setAttribute("fill",sole.color);$("#pvS").textContent=`#${sole.no} ${sole.name}`}
+  if(cord){$("#pvCord").setAttribute("stroke",cord.color);$("#pvKnot").setAttribute("fill",cord.color);$("#pvC").textContent=`#${cord.no} ${cord.name}`}
+}
+document.addEventListener("change",e=>{if(e.target.name==="sole"||e.target.name==="cord"){paint();hideErr()}});
+
+// foot photos
+let photos=[];
+function addFiles(files){
+  [...files].filter(f=>f.type.startsWith("image/")).forEach(async f=>{
+    const p=await shrink(f);
+    if(photos.length>=2)photos.shift();
+    photos.push(p);drawThumbs();
+  });
+}
+// スマホの写真は大きいので、長辺1600pxのJPEGに縮めてから添付（合計10MBの上限対策）
+function shrink(f){
+  return new Promise(res=>{
+    const url=URL.createObjectURL(f),img=new Image();
+    img.onload=()=>{
+      const k=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement("canvas");
+      c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>{const file=new File([b],f.name.replace(/\.\w+$/,"")+".jpg",{type:"image/jpeg"});res({name:f.name,url:URL.createObjectURL(file),file})},"image/jpeg",.85);
+      URL.revokeObjectURL(url);
+    };
+    img.onerror=()=>res({name:f.name,url,file:f});
+    img.src=url;
+  });
+}
+function drawThumbs(){$("#thumbs").innerHTML=photos.map(p=>`<img src="${p.url}" alt="${p.name}">`).join("");hideErr()}
+$("#foot").addEventListener("change",e=>addFiles(e.target.files));
+const drop=$("#drop");
+["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>addFiles(e.dataTransfer.files));
+
+// steps
+let step=0;
+const sections=[...document.querySelectorAll("[data-step]")];
+function show(){
+  sections.forEach(s=>s.hidden=+s.dataset.step!==step);
+  [...$("#steps").children].forEach((li,i)=>li.className=i<step?"done":i===step?"now":"");
+  $("#nav").hidden=step===5;
+  $("#back").style.visibility=step===0?"hidden":"visible";
+  $("#next").textContent=step===4?"この内容で依頼する":"次へ";
+  if(step===4)summary();
+  hideErr();
+}
+function err(m){$("#err").textContent=m;$("#err").hidden=false}
+function hideErr(){$("#err").hidden=true}
+const val=id=>$("#"+id).value.trim();
+function check(){
+  const {sole,cord}=sel();
+  if(step===0&&!sole)return err("ソールの色を1つ選んでください。"),false;
+  if(step===1&&!cord)return err("紐の色を1つ選んでください。"),false;
+  if(step===2&&!photos.length)return err("足形の写真を1枚以上添付してください。"),false;
+  if(step===3){
+    const bad=[];
+    document.querySelectorAll("#name,#zip,#addr,#tel,#mail").forEach(i=>{
+      let ok=i.value.trim()!=="";
+      if(ok&&i.id==="mail")ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(i.value.trim());
+      if(ok&&i.id==="zip")ok=/^\d{3}-?\d{4}$/.test(i.value.trim().replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).replace(/[ー−]/,"-"));
+      i.parentElement.classList.toggle("err",!ok);if(!ok)bad.push(i.previousElementSibling.firstChild.textContent);
+    });
+    if(bad.length)return err(bad.join("・")+" を正しく入力してください。"),false;
+  }
+  return true;
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function summary(){
+  const {sole,cord}=sel();
+  const rows=[["ソール",`#${sole.no} ${sole.name}`],["紐",`#${cord.no} ${cord.name}`],["足形写真",photos.length+"枚"],
+    ["お名前",val("name")],["住所","〒"+val("zip")+"\n"+val("addr")],["電話番号",val("tel")],["メール",val("mail")],["LINE ID",val("line")||"（なし）"],["ご要望",val("note")||"（なし）"]];
+  $("#sum").innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+}
+function send(){
+  const f=$("#f"),{sole,cord}=sel();
+  $("#hSole").value=`#${sole.no} ${sole.name}`;$("#hCord").value=`#${cord.no} ${cord.name}`;
+  ["#hFoot1","#hFoot2"].forEach((id,i)=>{const dt=new DataTransfer();if(photos[i])dt.items.add(photos[i].file);$(id).files=dt.files});
+  $("#hNext").value=location.href.split("#")[0]+"#thanks";
+  f.action="https://formsubmit.co/"+encodeURIComponent(ORDER_EMAIL);
+  $("#next").disabled=true;$("#next").textContent="送信中…";
+  HTMLFormElement.prototype.submit.call(f);
+}
+$("#f").addEventListener("submit",e=>{e.preventDefault();if(!check())return;
+  if(step===4&&ORDER_EMAIL)return send();
+  step++;show();$("#f").scrollIntoView({behavior:"smooth",block:"start"})});
+$("#back").addEventListener("click",()=>{if(step>0){step--;show()}});
+$("#again").addEventListener("click",()=>{$("#f").reset();photos=[];drawThumbs();step=0;show();
+  $("#pvSole").setAttribute("fill","#d9d6cc");$("#pvCord").setAttribute("stroke","#9a978c");$("#pvKnot").setAttribute("fill","#9a978c");$("#pvS").textContent=$("#pvC").textContent="未選択"});
+if(location.hash==="#thanks"){step=5;history.replaceState(null,"",location.pathname)}
+$("#demoNote").hidden=!!ORDER_EMAIL;
+show();
+</script>
