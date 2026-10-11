@@ -207,12 +207,24 @@ aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex
 
   <aside>
     <div class="card pv">
-      <svg viewBox="0 0 120 240" role="img" aria-label="選んだ色のプレビュー">
-        <path id="pvSole" d="M60 8c26 0 40 22 40 52 0 26-6 40-8 62-2 24 6 44 4 70-2 26-16 40-36 40s-34-14-36-40c-2-26 6-46 4-70-2-22-8-36-8-62C20 30 34 8 60 8z" fill="#d9d6cc" stroke="var(--line)" stroke-width="2"/>
-        <g id="pvCord" fill="none" stroke="#9a978c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M48 46 L30 110"/><path d="M48 46 L90 112"/><path d="M30 110 Q60 96 90 112"/><path d="M30 110 L36 190 Q60 200 84 190 L90 112"/>
-        </g>
-        <circle cx="48" cy="46" r="5" id="pvKnot" fill="#9a978c"/>
+      <svg viewBox="60 120 880 1900" role="img" aria-label="選んだ色のプレビュー">
+        <path id="pvSole" d="M330 150C470 140 620 200 730 290C840 400 880 660 880 920C880 1200 845 1500 855 1700C865 1860 810 1975 630 1985L310 1985C170 1975 140 1880 135 1750C125 1450 105 1100 110 850C115 560 150 260 330 150Z" fill="#d9d6cc" stroke="rgba(0,0,0,.25)" stroke-width="6"/>
+        <g fill="rgba(0,0,0,.45)"><circle cx="650" cy="305" r="13"/><circle cx="322" cy="1372" r="13"/><circle cx="742" cy="1352" r="13"/></g>
+        <defs><g id="cordPaths">
+          <path d="M650 262L651 305"/>
+          <path d="M480 600C470 520 560 380 600 330C620 305 640 300 645 315C640 360 560 470 505 590"/>
+          <path d="M470 680C380 820 280 1050 225 1320"/><path d="M492 686C412 830 302 1060 247 1325"/>
+          <path d="M500 680C620 800 760 1080 815 1315"/><path d="M482 690C598 822 738 1090 793 1320"/>
+          <path d="M215 1340C230 1500 250 1640 380 1660L700 1650C800 1640 830 1500 830 1340"/>
+          <path d="M240 1345C255 1490 275 1615 390 1632L690 1624C780 1614 806 1490 808 1345"/>
+        </g><g id="knots">
+          <ellipse cx="465" cy="592" rx="40" ry="32"/><ellipse cx="482" cy="668" rx="38" ry="30"/>
+          <ellipse cx="220" cy="1335" rx="44" ry="38"/><ellipse cx="822" cy="1330" rx="44" ry="38"/>
+        </g></defs>
+        <use href="#cordPaths" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="30" stroke-linecap="round"/>
+        <use href="#cordPaths" id="pvCord" fill="none" stroke="#9a978c" stroke-width="22" stroke-linecap="round"/>
+        <use href="#knots" fill="rgba(0,0,0,.35)" transform="translate(0 0)" stroke="rgba(0,0,0,.35)" stroke-width="8"/>
+        <use href="#knots" id="pvKnot" fill="#9a978c"/>
       </svg>
       <dl>
         <dt>ソール</dt><dd id="pvS">未選択</dd>
