@@ -104,8 +104,8 @@ aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex
 @media (max-width:760px){aside{position:static;order:-1}}
 .pv{display:flex;gap:14px;align-items:center}
 @media (min-width:761px){.pv{flex-direction:column;align-items:stretch}}
-.pv svg{width:110px;flex:none;height:auto}
-@media (min-width:761px){.pv svg{width:150px;margin:0 auto}}
+.pv canvas{width:120px;flex:none;height:auto;border-radius:6px;display:block}
+@media (min-width:761px){.pv canvas{width:200px;margin:0 auto}}
 .pv dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:13px}
 .pv dt{color:var(--muted)}
 .pv dd{margin:0}
@@ -207,25 +207,7 @@ aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex
 
   <aside>
     <div class="card pv">
-      <svg viewBox="60 120 880 1900" role="img" aria-label="選んだ色のプレビュー">
-        <path id="pvSole" d="M330 150C470 140 620 200 730 290C840 400 880 660 880 920C880 1200 845 1500 855 1700C865 1860 810 1975 630 1985L310 1985C170 1975 140 1880 135 1750C125 1450 105 1100 110 850C115 560 150 260 330 150Z" fill="#d9d6cc" stroke="rgba(0,0,0,.25)" stroke-width="6"/>
-        <g fill="rgba(0,0,0,.45)"><circle cx="650" cy="305" r="13"/><circle cx="322" cy="1372" r="13"/><circle cx="742" cy="1352" r="13"/></g>
-        <defs><g id="cordPaths">
-          <path d="M650 262L651 305"/>
-          <path d="M478 600C470 520 560 380 600 330C618 310 636 302 650 305"/>
-          <path d="M470 680C380 820 280 1050 225 1320"/>
-          <path d="M500 680C620 800 760 1080 815 1315"/>
-          <path d="M215 1340C230 1500 250 1640 380 1660L700 1650C800 1640 830 1500 830 1340"/>
-          <path d="M240 1345C255 1490 275 1615 390 1632L690 1624C780 1614 806 1490 808 1345"/>
-        </g><g id="knots">
-          <ellipse cx="465" cy="592" rx="40" ry="32"/><ellipse cx="482" cy="668" rx="38" ry="30"/>
-          <ellipse cx="220" cy="1335" rx="44" ry="38"/><ellipse cx="822" cy="1330" rx="44" ry="38"/>
-        </g></defs>
-        <use href="#cordPaths" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="30" stroke-linecap="round"/>
-        <use href="#cordPaths" id="pvCord" fill="none" stroke="#9a978c" stroke-width="22" stroke-linecap="round"/>
-        <use href="#knots" fill="rgba(0,0,0,.35)" transform="translate(0 0)" stroke="rgba(0,0,0,.35)" stroke-width="8"/>
-        <use href="#knots" id="pvKnot" fill="#9a978c"/>
-      </svg>
+      <canvas id="pv" width="420" height="806" role="img" aria-label="選んだ色のプレビュー（実物写真）"></canvas>
       <dl>
         <dt>ソール</dt><dd id="pvS">未選択</dd>
         <dt>紐</dt><dd id="pvC">未選択</dd>
@@ -286,10 +268,34 @@ const sel=()=>({
   sole:SOLES.find(o=>o.no==(document.querySelector('input[name=sole]:checked')||{}).value),
   cord:CORDS.find(o=>o.no==(document.querySelector('input[name=cord]:checked')||{}).value)
 });
+// 実物写真のソールと紐の部分だけを、選んだ色に塗り替えて表示
+const pv={cv:$("#pv"),base:null,mask:null};
+function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+Promise.all([loadImg("img/pv-photo.jpg"),loadImg("img/pv-mask.png")]).then(([ph,mk])=>{
+  if(!ph)return;const c=pv.cv.getContext("2d");c.drawImage(ph,0,0,420,806);
+  try{pv.base=c.getImageData(0,0,420,806);
+    if(mk){const t=document.createElement("canvas");t.width=420;t.height=806;const tc=t.getContext("2d");tc.drawImage(mk,0,0,420,806);pv.mask=tc.getImageData(0,0,420,806).data}
+  }catch(e){}
+  paint();
+});
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+function tint(){
+  if(!pv.base||!pv.mask)return;
+  const {sole,cord}=sel(),src=pv.base.data,m=pv.mask,out=new ImageData(new Uint8ClampedArray(src),420,806),d=out.data;
+  const sc=sole&&hex(sole.color),cc=cord&&hex(cord.color),ccDark=cc&&(cc[0]*.3+cc[1]*.59+cc[2]*.11)<70;
+  for(let i=0;i<d.length;i+=4){
+    const as=m[i]/255,ac=m[i+1]/255;if(!as&&!ac)continue;
+    const L=src[i]*.3+src[i+1]*.59+src[i+2]*.11;
+    if(sc&&as){const k=Math.min(1.3,Math.max(.7,.5+.5*L/76));for(let j=0;j<3;j++)d[i+j]=d[i+j]*(1-as)+Math.min(255,sc[j]*k)*as}
+    if(cc&&ac){let k=Math.min(1.15,Math.max(.5,.55+.45*L/149));for(let j=0;j<3;j++){let v=cc[j]*k;if(ccDark)v+=Math.max(0,k-.6)*90;d[i+j]=d[i+j]*(1-ac)+Math.min(255,v)*ac}}
+  }
+  pv.cv.getContext("2d").putImageData(out,0,0);
+}
 function paint(){
   const {sole,cord}=sel();
-  if(sole){$("#pvSole").setAttribute("fill",sole.color);$("#pvS").textContent=`#${sole.no} ${sole.name}`}
-  if(cord){$("#pvCord").setAttribute("stroke",cord.color);$("#pvKnot").setAttribute("fill",cord.color);$("#pvC").textContent=`#${cord.no} ${cord.name}`}
+  if(sole)$("#pvS").textContent=`${sole.no}. ${sole.name}`;
+  if(cord)$("#pvC").textContent=`${cord.no}. ${cord.name}`;
+  tint();
 }
 document.addEventListener("change",e=>{if(e.target.name==="sole"||e.target.name==="cord"){paint();hideErr()}});
 
@@ -377,7 +383,7 @@ $("#f").addEventListener("submit",e=>{e.preventDefault();if(!check())return;
   step++;show();$("#f").scrollIntoView({behavior:"smooth",block:"start"})});
 $("#back").addEventListener("click",()=>{if(step>0){step--;show()}});
 $("#again").addEventListener("click",()=>{$("#f").reset();photos=[];drawThumbs();step=0;show();
-  $("#pvSole").setAttribute("fill","#d9d6cc");$("#pvCord").setAttribute("stroke","#9a978c");$("#pvKnot").setAttribute("fill","#9a978c");$("#pvS").textContent=$("#pvC").textContent="未選択"});
+  $("#pvS").textContent=$("#pvC").textContent="未選択";if(pv.base)pv.cv.getContext("2d").putImageData(pv.base,0,0)});
 if(location.hash==="#thanks"){step=5;history.replaceState(null,"",location.pathname)}
 $("#demoNote").hidden=!!ORDER_EMAIL;
 show();
