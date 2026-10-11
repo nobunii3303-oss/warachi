@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ワラーチ製作依頼</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +21,9 @@
   --bg:#1b1c19; --surface:#252622; --ink:#ecebe4; --muted:#a6a395; --line:#3a3b35;
   --accent:#8fc4a4; --accent-ink:#13241a; --accent-soft:#2a3a30; --warn:#f08a72; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:24px 64px}
 .wrap{max-width:960px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:28px;align-items:start}
 @media (max-width:760px){.wrap{grid-template-columns:minmax(0,1fr)}}
@@ -40,14 +47,16 @@ main{display:flex;flex-direction:column;gap:16px;min-width:0}
 .req{color:var(--warn);font-size:12px;margin-left:6px;font-family:var(--body)}
 
 /* choice grids */
-.choices{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}
+.choices{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
 .choices.cords{grid-template-columns:repeat(auto-fill,minmax(86px,1fr))}
 .opt{position:relative}
 .opt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
 .opt label{display:flex;flex-direction:column;gap:6px;border:2px solid var(--line);border-radius:8px;padding:6px 6px 8px;cursor:pointer;background:var(--surface);transition:border-color .15s}
-.opt img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;display:block;background:#fff}
-.cords .opt img{aspect-ratio:4/5}
-.cords .opt .nm{font-size:12px;flex-wrap:wrap;gap:4px}
+.opt img{width:100%;aspect-ratio:2/5;object-fit:contain;border-radius:4px;display:block;background:#fff}
+.cords .opt img{aspect-ratio:1/2;object-fit:cover}
+.small a{color:var(--accent);font-weight:700}
+.opt .nm{line-height:1.35;font-size:12px}
+.cords .opt .nm{font-size:12px;gap:4px}
 .opt .nm{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500}
 .opt .no{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
 .chip{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.2);flex:none}
@@ -148,7 +157,7 @@ aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex
           <li>ペンを垂直に立てて、足のまわりをなぞります。親指と人差し指の間にも印をつけてください。</li>
           <li>左右それぞれ、真上から紙全体が写るように撮影します。</li>
         </ol>
-        <p class="small" style="margin-bottom:14px">撮り方の動画：<span id="videoLink">（動画のURLをここに入れます）</span></p>
+        <p class="small" style="margin-bottom:14px">撮り方の動画：<a id="videoLink" href="https://youtu.be/kt3cdUgCAxc" target="_blank" rel="noopener">YouTubeで見る</a></p>
         <div class="drop" id="drop">
           <input type="file" id="foot" accept="image/*" multiple aria-label="足形の写真を選ぶ">
           <strong>写真を選ぶ</strong>
@@ -256,7 +265,7 @@ const $=s=>document.querySelector(s);
 function buildChoices(el,list,group,img){
   el.innerHTML=list.map(o=>`<div class="opt"><input type="radio" form="noSubmit" name="${group}" id="${group}${o.no}" value="${o.no}">
     <label for="${group}${o.no}"><img src="img/${img}${o.no}.jpg" alt="${o.name}" loading="lazy">
-    <span class="nm"><span class="chip" style="background:${o.color}"></span>${o.name}<span class="no">#${o.no}</span></span></label></div>`).join("");
+    <span class="nm"><span class="chip" style="background:${o.color}"></span><span><span class="no">${o.no}. </span>${o.name}</span></span></label></div>`).join("");
 }
 buildChoices($("#soles"),SOLES,"sole","sole");
 buildChoices($("#cords"),CORDS,"cord","cord");
